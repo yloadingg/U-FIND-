@@ -70,7 +70,7 @@
   }
   
   :global(body) {
-  background-color: rgb(0, 0, 0);
+  background-color: rgb red;
 }
   
   .Ulogo-container {
