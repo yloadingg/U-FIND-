@@ -31,7 +31,7 @@
             <p>Already have an account?</p>
             <!-- Back to Sign-In -->
             <router-link to="/login">
-              <button class="signin-btn">SIGN IN</button>
+              <button class="signin-btn">LOG IN</button>
             </router-link>
           </div>
         </div>
@@ -70,161 +70,161 @@
   </script>
   
   <style scoped>
-  body {
-    margin: 0;
-    font-family: Arial, sans-serif;
-    overflow: hidden;
-  }
+:global(body) {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background-color: white;
+}
+
+/* Top Brand Section */
+.Ulogo-container {
+  display: flex;
+  align-items: center;
+  padding: 15px 20px;
+}
+
+.Ulogo {
+  width: 60px;
+  height: 60px;
+  margin-right: 10px;
+}
+
+.brand-name {
+  font-size: 32px;
+  font-family: 'Barriecito', cursive;
+  color: black;
+}
+
+/* Main Layout */
+.container {
+  display: flex;
+  min-height: calc(100vh - 90px);
+  width: 100%;
+}
+
+/* Left Section */
+.left-section {
+  flex: 1;
+  color: rgb(0, 0, 0);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.form-wrapper {
+  width: 100%;
+  max-width: 400px;
+  padding: 40px;
+}
+
+h1 {
+  font-size: 50px;
+  margin-bottom: 20px;
+  font-family: 'Bebas Neue', sans-serif;
+  color: rgb(0, 0, 0);
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  color: black;
+}
+
+label {
+  margin-top: 10px;
+  margin-bottom: 4px;
+  font-weight: bold;
+}
+
+input[type="email"],
+input[type="password"],
+input[type="text"] {
+  padding: 10px;
+  font-size: 16px;
+  border: 3px solid #ccc; /* light border for visibility */
+  background-color: white; /* ensures it stands out on black */
+  color: black; /* readable text color */
+  border-radius: 6px;
+  width: 100%;
   
-  /* logo brand name */
-  .Ulogo-container {
-    display: flex;
-    align-items: center;
-  }
-  
-  .Ulogo {
-    padding-top: 10px;
-    padding-left: 10px;
-    width: 60px;
-    height: 60px;
-    margin-right: 10px;
-  }
-  
-  .brand-name {
-    font-size: 30px;
-    padding-top: 8px;
-    font-family: 'Barriecito', cursive;
-  }
-  
-  /* Form */
-  .container {
-    display: flex;
-    height: 100vh; /* full viewport height */
-    width: 1000px;
-    justify-content: space-between; /* space between the form and the image */
-  }
-  
-  .form-wrapper {
-    flex: 1;
-    padding: 60px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    padding-left: 150px;
-    padding-bottom: 200px;
-  }
-  
-  h1 {
-    font-size: 42px;
-    margin-bottom: 20px;
-    font-family: 'Bebas Neue', sans-serif;
-  }
-  
-  p {
-    text-align: center;
-    font-weight: bold;
-    font-family: Arial, Helvetica, sans-serif;
-  }
-  
-  form {
-    display: flex;
-    flex-direction: column;
-    font-family: Arial, Helvetica, sans-serif;
-  }
-  
-  label {
-    margin-top: 10px;
-    font-weight: bold;
-  }
-  
-  input[type="email"],
-  input[type="password"],
-  input[type="text"] {
-    padding: 10px;
-    margin-top: 5px;
-    font-size: 16px;
-  }
-  
-  .password-wrapper {
-    position: relative;
-    padding-bottom: 20px;
-  }
-  
-  .password-wrapper input {
-    width: 94%;
-  }
-  
-  .toggle-password {
-    position: absolute;
-    right: 5px;
-    top: 25%;
-    cursor: pointer;
-  }
-  
-  .image-wrapper {
-    flex: 1;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-  
-  .illustration {
-    width: 100%;
-    max-width: 400px;
-  }
-  
-  .signin-btn,
-  .signup-btn {
-    border: none;
-    padding: 12px;
-    font-weight: bold;
-    cursor: pointer;
-    border-radius: 8px;
-    font-size: 16px;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  }
-  
-  /* Sign In Button */
-  .signin-btn {
-    background-color: #e60000;
-    color: white;
-  }
-  
-  .signin-btn:hover {
-    background-color: #cc0000;
-    transform: scale(1.05);
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
-  }
-  
-  /* Sign Up Button */
-  .signup-btn {
-    margin-top: 10px;
-    background-color: #0033cc;
-    color: white;
-    width: 100%;
-    max-width: 400px;
-  }
-  
-  .signup-btn:hover {
-    background-color: #001f99;
-    transform: scale(1.05);
-    box-shadow: 12 6px 12px rgba(0, 0, 0, 0.2);
-  }
-  
-  .right-section {
-    flex: 1;
-    background-color: #fff;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  
-  .illustration {
-    width: 110%;
-    padding-left: 230px;
-    padding-top: 10px;
-    padding-bottom: 100px;
-  }
+
+}
+
+.password-wrapper {
+  position: relative;
+  margin-bottom: 10px;
+}
+
+.password-wrapper input {
+  width: 100%;
+}
+
+.toggle-password {
+  position: absolute;
+  right: 10px;
+  top: 10px;
+  cursor: pointer;
+  color: rgb(0, 0, 0);
+}
+
+/* Buttons */
+.signup-btn {
+  background-color: #0033cc;
+  color: white;
+  padding: 12px;
+  font-weight: bold;
+  font-size: 16px;
+  border: none;
+  border-radius: 8px;
+  margin-top: 15px;
+  transition: all 0.3s ease;
+  width: 100%;
+}
+
+.signup-btn:hover {
+  background-color: #001f99;
+  transform: scale(1.05);
+}
+
+.signin-btn {
+  background-color: red;
+  color: white;
+  margin-top: 10px;
+  padding: 12px;
+  font-weight: bold;
+  font-size: 16px;
+  border: none;
+  border-radius: 8px;
+  width: 100%;
+  transition: all 0.3s ease;
+}
+
+.signin-btn:hover {
+  background-color: #cc0000;
+  transform: scale(1.05);
+}
+
+p {
+  text-align: center;
+  margin-top: 10px;
+  font-weight: bold;
+  color: rgb(0, 0, 0);
+}
+
+/* Right Section */
+.right-section {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: rgb(255, 255, 255);
+}
+
+.illustration {
+  max-width: 80%;
+  height: auto;
+  padding-left: 150px;
+}
+
   </style>
   
