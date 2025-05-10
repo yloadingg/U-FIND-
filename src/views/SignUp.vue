@@ -1,5 +1,14 @@
 <template>
-    <div>
+  
+    <div class="background-decor-grid">
+  <img
+    v-for="n in 60"
+    :key="n"
+    src="@/assets/images/megaphone.png"
+    class="grid-item"
+  />
+</div>
+
       <!-- Top Logo -->
       <div class="Ulogo-container">
         <img src="@/assets/images/web-app-manifest-192x192.png" alt="U FIND logo" class="Ulogo" />
@@ -9,12 +18,12 @@
       <!-- Main Container -->
       <div class="container">
         <!-- Left Section - Sign Up Form -->
-        <div class="left-section">
+        <div class="left-section animate-zoom">
           <div class="form-wrapper">
             <h1>Create Account</h1>
             <form @submit.prevent="handleSubmit">
-              <label for="mobile">Mobile Number</label>
-              <input type="text" id="mobile" v-model="mobile" required />
+              <label for="mobile">Username</label>
+              <input type="text" id="username" v-model="username" required />
   
               <label for="email">Email Address</label>
               <input type="email" id="email" v-model="email" required />
@@ -36,38 +45,59 @@
           </div>
         </div>
   
-        <!-- Right Section - Illustration -->
-        <div class="right-section">
-          <div class="image-wrapper">
-            <img src="@/assets/images/DEC.png" alt="Detective Illustration" class="illustration" />
-          </div>
-        </div>
+           <!-- Right: Image Section -->
+           <div class="right-section animate-zoom">
+        <img src="@/assets/images/DEC.png" alt="Detective Illustration" class="illustration" />
       </div>
     </div>
+ 
+
+
   </template>
   
+
   <script>
+  import axios from 'axios';
+  
   export default {
-    name: 'SignUp',
     data() {
       return {
-        mobile: '',
+        username: '',
         email: '',
         password: '',
-        showPassword: false,
+        showPassword: false
       };
     },
+  
+    mounted() {
+      this.animate = true;
+    },
+  
     methods: {
-      handleSubmit() {
-        console.log('Mobile:', this.mobile, 'Email:', this.email, 'Password:', this.password);
-        // Add the logic to handle form submission (e.g., API call)
-      },
       togglePassword() {
         this.showPassword = !this.showPassword;
       },
-    },
+  
+      async handleSubmit() {
+        const user = {
+          username: this.username,
+          email: this.email,
+          password: this.password,
+        };
+  
+        try {
+          const response = await axios.post('http://localhost:3000/api/auth/signup', user);
+          console.log(response.data); // ✅ Success
+          alert('Sign Up Successful!');
+        } catch (error) {
+          console.error('Error:', error);
+          alert('Sign Up Failed. Try again!');
+        }
+      }
+    }
   };
   </script>
+  
   
   <style scoped>
 :global(body) {
@@ -80,26 +110,32 @@
 .Ulogo-container {
   display: flex;
   align-items: center;
-  padding: 15px 20px;
+  padding: 11.5px 20px;
+  position: relative; /* 👈 Add this */
+  z-index: 1;         /* 👈 Add this */
 }
 
 .Ulogo {
-  width: 60px;
-  height: 60px;
-  margin-right: 10px;
+  width: 50px;
+  height: 50px;
+  margin-right: 5px;
 }
 
 .brand-name {
-  font-size: 32px;
+  font-size: 25px;
   font-family: 'Barriecito', cursive;
   color: black;
+  font-weight:600
 }
 
 /* Main Layout */
 .container {
   display: flex;
-  min-height: calc(100vh - 90px);
+  height: 80vh;
   width: 100%;
+  overflow: hidden;
+  position: relative; /* 👈 Add this */
+  z-index: 1;         /* 👈 Add this */
 }
 
 /* Left Section */
@@ -119,7 +155,6 @@
 
 h1 {
   font-size: 50px;
-  margin-bottom: 20px;
   font-family: 'Bebas Neue', sans-serif;
   color: rgb(0, 0, 0);
 }
@@ -141,7 +176,7 @@ input[type="password"],
 input[type="text"] {
   padding: 10px;
   font-size: 16px;
-  border: 3px solid #ccc; /* light border for visibility */
+  border: 2px solid #000000; /* light border for visibility */
   background-color: white; /* ensures it stands out on black */
   color: black; /* readable text color */
   border-radius: 6px;
@@ -162,7 +197,7 @@ input[type="text"] {
 .toggle-password {
   position: absolute;
   right: 10px;
-  top: 10px;
+  top: 11px;
   cursor: pointer;
   color: rgb(0, 0, 0);
 }
@@ -184,6 +219,7 @@ input[type="text"] {
 .signup-btn:hover {
   background-color: #001f99;
   transform: scale(1.05);
+  filter: drop-shadow(1px 1px 7px rgb(22, 25, 238));
 }
 
 .signin-btn {
@@ -202,6 +238,7 @@ input[type="text"] {
 .signin-btn:hover {
   background-color: #cc0000;
   transform: scale(1.05);
+  filter: drop-shadow(1px 1px 7px rgb(212, 31, 31));
 }
 
 p {
@@ -211,19 +248,79 @@ p {
   color: rgb(0, 0, 0);
 }
 
-/* Right Section */
+/* Right side (image) */
 .right-section {
   flex: 1;
   display: flex;
-  justify-content: center;
   align-items: center;
-  background-color: rgb(255, 255, 255);
+  justify-content: center;
+
 }
 
 .illustration {
-  max-width: 80%;
+  max-width: 58%;
   height: auto;
-  padding-left: 150px;
+  padding-left: 20px;
+}
+
+
+
+/* Keyframe animation for floating effect */
+@keyframes float {
+  0% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-20px) rotate(10deg);
+  }
+  100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+}
+
+@keyframes zoomIn {
+  0% {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.animate-zoom {
+  animation: zoomIn 0.5s ease-out;
+}
+
+
+/* Positioning for each individual megaphone */
+/* Polka dot grid layout using absolute positioning */
+
+.background-decor-grid {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+  grid-template-rows: repeat(6, 11fr);
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.7;
+}
+
+.grid-item {
+  justify-self: center;
+  align-self: center;
+  width: 40px;
+  height: auto;
+  animation: float 8s infinite ease-in-out;
+}
+
+@keyframes float {
+  0%   { transform: translateY(0px); }
+  50%  { transform: translateY(-10px); }
+  100% { transform: translateY(0px); }
 }
 
   </style>

@@ -1,5 +1,15 @@
 <template>
-  <div>
+
+    <div class="background-decor-grid">
+  <img
+    v-for="n in 60"
+    :key="n"
+    src="@/assets/images/megaphone.png"
+    class="grid-item"
+  />
+</div>
+
+ <!-- Top Logo -->
     <div class="Ulogo-container">
       <img src="@/assets/images/web-app-manifest-192x192.png" alt="U FIND logo" class="Ulogo" />
       <span class="brand-name">U FIND</span>
@@ -8,7 +18,7 @@
     <div class="container">
       <!-- Left: Form Section -->
       <div class="left-section">
-        <div class="form-wrapper">
+        <div class="form-wrapper" :class="{ 'zoom-in': animate }">
           <h1>Welcome Back!</h1>
           <form @submit.prevent="handleLogin">
             <label for="email">Email Address</label>
@@ -32,17 +42,22 @@
 
       <!-- Right: Image Section -->
       <div class="right-section">
-        <img src="@/assets/images/DEC.png" alt="Detective Illustration" class="illustration" />
+        <img
+          src="@/assets/images/DEC.png"
+          alt="Detective Illustration"
+          class="illustration"
+          :class="{ 'zoom-in': animate }"
+        />
       </div>
     </div>
 
-    <div class="background-decor">
-      <img v-for="n in 20" :key="n" src="@/assets/images/megaphone.png" :class="`decor decor${n}`" />
-    </div>
-  </div>
+
 </template>
 
+
 <script>
+import axios from 'axios';
+
 export default {
   name: "Login",
   data() {
@@ -50,48 +65,84 @@ export default {
       email: "",
       password: "",
       showPassword: false,
+      animate: false,
     };
   },
+  mounted() {
+    this.animate = true;
+  },
   methods: {
-    handleLogin() {
-      console.log("Email:", this.email, "Password:", this.password);
-      // Replace with your login logic (e.g. API call)
-    },
     togglePassword() {
       this.showPassword = !this.showPassword;
     },
-  },
+    async handleLogin() {
+      try {
+        const res = await axios.post('http://localhost:3000/api/auth/login', {
+          email: this.email,
+          password: this.password
+        });
+
+        const { token, user, message } = res.data;
+
+        if (token && user) {
+          // ✅ Save token and user info
+          localStorage.setItem('token', token);
+          localStorage.setItem('user', JSON.stringify(user));
+
+          alert(message || 'Login successful');
+          this.$router.push('/dashboard'); // ✅ Redirect to dashboard
+        } else {
+          alert('No token or user data received from server.');
+        }
+      } catch (err) {
+        console.error(err);
+        alert(err.response?.data?.error || 'Login failed. Check your email and password.');
+      }
+    }
+  }
 };
+
+
+
+
 </script>
 
 <style scoped>
+
+
+
 /* Logo */
 .Ulogo-container {
   display: flex;
   align-items: center;
   padding: 10px 20px;
+  position: relative; /* 👈 Add this */
+  z-index: 1;         /* 👈 Add this */
 }
 
+
 .Ulogo {
-  width: 60px;
-  height: 60px;
-  margin-right: 10px;
+  width: 50px;
+  height: 50px;
+  margin-right: 5px;
 }
 
 .brand-name {
-  font-size: 30px;
+  font-size: 25px;
   font-family: 'Barriecito', cursive;
   color: black;
+  font-weight:600
 }
-
 /* Layout */
 .container {
   display: flex;
-  height: 100vh;
+  height:80vh;
   width: 100%;
   overflow: hidden;
+  position: relative; /* 👈 Add this */
+  z-index: 1;         /* 👈 Add this */
 }
-
+  
 /* Left side (form) */
 .left-section {
   flex: 1;
@@ -136,7 +187,7 @@ input[type="password"],
 input[type="text"] {
   padding: 10px;
   font-size: 16px;
-  border: 3px solid #ccc; /* light border for visibility */
+  border: 2px solid #000000; /* light border for visibility */
   background-color: white; /* ensures it stands out on black */
   color: black; /* readable text color */
   border-radius: 6px;
@@ -156,7 +207,7 @@ input[type="text"] {
 .toggle-password {
   position: absolute;
   right: 10px;
-  top: 30%;
+  top: 20%;
   cursor: pointer;
 }
 
@@ -185,6 +236,7 @@ input[type="text"] {
 .signin-btn:hover {
   background-color: #cc0000;
   transform: scale(1.05);
+  filter: drop-shadow(1px 1px 7px rgb(212, 31, 31));
 }
 
 .signup-btn {
@@ -192,11 +244,13 @@ input[type="text"] {
   background-color: #0033cc;
   color: white;
   width: 100%;
+
 }
 
 .signup-btn:hover {
   background-color: #001f99;
   transform: scale(1.05);
+  filter: drop-shadow(1px 1px 7px rgb(22, 25, 238));
 }
 
 /* Right side (image) */
@@ -213,18 +267,70 @@ input[type="text"] {
   height: auto;
 }
 
-/* Optional background decor */
-.background-decor img {
-  position: absolute;
-  width: 40px;
-  opacity: 0.2;
-}
+
 
 
 :global(body) {
   margin: 0;
   font-family: Arial, sans-serif;
-  background-color: #fff;
   overflow: hidden;
+
 }
+
+
+
+/* Keyframe animation for floating effect */
+@keyframes float {
+  0% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-20px) rotate(10deg);
+  }
+  100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+}
+
+@keyframes zoomIn {
+  0% {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.zoom-in {
+  animation: zoomIn 0.6s ease-out forwards;
+}
+
+.background-decor-grid {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+  grid-template-rows: repeat(6, 11fr);
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.7;
+}
+
+.grid-item {
+  justify-self: center;
+  align-self: center;
+  width: 40px;
+  height: auto;
+  animation: float 8s infinite ease-in-out;
+}
+
+@keyframes float {
+  0%   { transform: translateY(0px); }
+  50%  { transform: translateY(-10px); }
+  100% { transform: translateY(0px); }
+}
+
 </style>
