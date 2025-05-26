@@ -4,16 +4,12 @@
   <img
     v-for="n in 60"
     :key="n"
-    src="@/assets/images/megaphone.png"
+    src="@/assets/images/magnifier.png"
     class="grid-item"
   />
 </div>
 
       <!-- Top Logo -->
-      <div class="Ulogo-container">
-        <img src="@/assets/images/web-app-manifest-192x192.png" alt="U FIND logo" class="Ulogo" />
-        <span class="brand-name">U FIND</span>
-      </div>
   
       <!-- Main Container -->
       <div class="container">
@@ -131,7 +127,7 @@
 /* Main Layout */
 .container {
   display: flex;
-  height: 80vh;
+  height: 100vh;
   width: 100%;
   overflow: hidden;
   position: relative; /* 👈 Add this */
@@ -306,7 +302,7 @@ p {
   grid-template-rows: repeat(6, 11fr);
   pointer-events: none;
   z-index: 0;
-  opacity: 0.7;
+  opacity: 0.5;
 }
 
 .grid-item {

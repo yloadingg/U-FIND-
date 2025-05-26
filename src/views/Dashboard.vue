@@ -3,7 +3,7 @@
     <img
       v-for="n in 60"
       :key="n"
-      src="@/assets/images/megaphone.png"
+      src="@/assets/images/magnifier.png"
       class="grid-item"
     />
   </div>
@@ -16,9 +16,7 @@
       <span class="header-title"> U DASHBOARD</span>
     </div>
     <div class="header-right">
-      <img src="@/assets/images/bell.png" alt="Notifications" class="header-icon" />
-      <img src="@/assets/images/search.png" alt="Search" class="header-icon" />
-    </div>
+</div>
   </div>
 
   <!-- Sidebar -->
@@ -34,11 +32,20 @@
       <!-- Drag Handle (Swipe Bar) -->
       <div class="sidebar-drag-handle"></div>
 
-      <!-- Logo Section -->
-      <div class="sidebar-logo">
-        <img src="@/assets/images/DEC.png" alt="Logo" class="sidebar-logo-img" />
-        <h1 class="sidebar-logo-title">U FIND</h1>
-      </div>
+ <!-- Logo Section inside Sidebar -->
+<div class="sidebar-logo">
+  <!-- Hamburger Close Icon -->
+  <img 
+    src="@/assets/images/more.png" 
+    alt="Close Sidebar" 
+    class="sidebar-hamburger" 
+    @click="toggleSidebar"
+  />
+  
+  <!-- Logo -->
+  <img src="@/assets/images/DEC.png" alt="Logo" class="sidebar-logo-img" />
+  <h1 class="sidebar-logo-title">U FIND</h1>
+</div>
 
       <!-- Uploaded Item Link -->
       <router-link to="/UserItemUploaded" class="sidebar-link sidebar-link-active">
@@ -46,43 +53,53 @@
         Uploaded Item
       </router-link>
 
-      <!-- Menu Links -->
-      <nav class="sidebar-nav">
-        <router-link to="/profile" class="sidebar-link">
-          <img src="@/assets/images/Sidebar.png" class="sidebar-icon" alt="Profile Icon" />
-          My Profile
-        </router-link>
+<!-- Menu Links -->
+<nav class="sidebar-nav">
+  <router-link to="/MyProfile" class="sidebar-link">
+    <img src="@/assets/images/Sidebar.png" class="sidebar-icon" alt="Profile Icon" />
+    My Profile
+  </router-link>
 
-        <router-link to="/contact-dev" class="sidebar-link">
-          <img src="@/assets/images/devs.png" class="sidebar-icon" alt="Contact Icon" />
-          Contact Dev
-        </router-link>
+  <a href="mailto:devemail@example.com" class="sidebar-link">
+  <img src="@/assets/images/devs.png" class="sidebar-icon" alt="Contact Icon" />
+  Contact Dev
+</a>
+<!-- Settings dropdown -->
+<div class="sidebar-link settings-dropdown">
+  <img src="@/assets/images/sett.png" class="sidebar-icon" alt="Settings Icon" />
+  <span>Settings</span>
 
-        <router-link to="/settings" class="sidebar-link">
-          <img src="@/assets/images/sett.png" class="sidebar-icon" alt="Settings Icon" />
-          Settings
-        </router-link>
+  <!-- Dropdown content shown on hover -->
+  <div class="dropdown-content">
+    <span>Dark Mode</span>
+    <label class="switch">
+      <input type="checkbox" v-model="darkMode" />
+      <span class="slider round"></span>
+    </label>
+  </div>
+</div>
 
-        <a class="sidebar-link" @click="handleLogout">
-          <img src="@/assets/images/logout.png" class="sidebar-icon" alt="Logout Icon" />
-          Log Out
-        </a>
-      </nav>
+<!-- side bar log out-->
+  <a class="sidebar-link" @click="handleLogout">
+    <img src="@/assets/images/logout.png" class="sidebar-icon" alt="Logout Icon" />
+    Log Out
+  </a>
+</nav>
+
 
       <!-- Bottom Profile Info -->
       <div class="sidebar-profile">
-  <img src="@/assets/images/user.png" alt="Profile Picture" class="profile-img" />
+  <img :src="user.profile_url || defaultProfile" alt="Profile Picture" class="profile-img" />
   <div class="profile-info">
     <p class="profile-name">{{ user?.username || 'Guest' }}</p>
     <p class="profile-email">{{ user?.email || 'guest@example.com' }}</p>
   </div>
 </div>
-    </div>
+</div>
   </transition>
 
 
-
-
+<!---Dashboard cards -->
 <div class="dashboard-cards">
   <router-link to="/add-item" class="dashboard-card zoom-in">
     <img src="@/assets/images/add.png" alt="Add Icon" class="card-icon" />
@@ -102,10 +119,43 @@
 
 
 
+<!-- Notifications Dropdown -->
+<div 
+  class="notif-wrapper" 
+  @mouseenter="notificationsOpen = true; fetchNotifications()" 
+  @mouseleave="notificationsOpen = false"
+>
+  <img src="@/assets/images/bell.png" alt="Notifications" class="header-icon" />
+  
+  <div v-if="notificationsOpen" class="notif-dropdown">
+    <h3 class="notif-title">Notifications</h3>
+
+    <div v-if="notifications.length">
+      <div 
+        v-for="notif in notifications" 
+        :key="notif.id" 
+        class="notif-item" 
+        @click="goToPost(notif.post_id)"
+      >
+        <strong>{{ notif.commenter_name }}</strong> commented on your post.
+      </div>
+    </div>
+
+    <div v-else class="no-notif">No notifications yet.</div>
+  </div>
+</div>
+
+
+
+
+
+
 
 </template>
 
 <script>
+import defaultProfile from '@/assets/images/user.png';
+
 export default {
   data() {
     return {
@@ -114,13 +164,33 @@ export default {
       touchEndX: 0,
       mouseDownX: 0,
       mouseUpX: 0,
-      user: null // 👤 Store user here
+      user: null,
+      notificationsOpen: false,
+      notifications: [],
+      defaultProfile,
+
+      // ✅ Dark Mode
+      darkMode: false,
     };
   },
   created() {
     const userData = localStorage.getItem('user');
     if (userData) {
       this.user = JSON.parse(userData);
+      this.fetchNotifications();
+    }
+  },
+  mounted() {
+    // ✅ Load dark mode state
+    const saved = localStorage.getItem('darkMode');
+    this.darkMode = saved === 'true';
+    this.updateDarkMode();
+  },
+  watch: {
+    // ✅ Save dark mode toggle
+    darkMode(val) {
+      localStorage.setItem('darkMode', val);
+      this.updateDarkMode();
     }
   },
   methods: {
@@ -148,13 +218,72 @@ export default {
       }
     },
     handleLogout() {
-  localStorage.removeItem('token');
-  localStorage.removeItem('user');
-  this.$router.push('/login'); // redirect to login page
-}
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      this.$router.push('/login');
+    },
+    toggleNotifications() {
+      this.notificationsOpen = !this.notificationsOpen;
+      if (this.notificationsOpen) {
+        this.fetchNotifications();
+      }
+    },
+    async fetchNotifications() {
+      if (this.user && this.user.id) {
+        try {
+          const token = localStorage.getItem('token');
+          const res = await fetch(`http://localhost:3000/api/notifications/${this.user.id}`, {
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
+          });
+          if (!res.ok) throw new Error('Network error: ' + res.status);
+          const data = await res.json();
+          this.notifications = data;
+          console.log('Notifications fetched:', data);
+        } catch (error) {
+          console.error("Failed to fetch notifications:", error);
+        }
+      }
+    },
+    async clearNotifications() {
+      this.notifications = [];
+      try {
+        await fetch(`http://localhost:3000/api/notifications/${this.user.id}`, {
+          method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          }
+        });
+      } catch (err) {
+        console.error('Failed to clear notifications:', err);
+      }
+    },
+    goToPost(postId) {
+      this.$router.push(`/lost-item/${postId}`);
+    },
+    updateProfileImage(newUrl) {
+      if (this.user) {
+        this.user.profile_url = newUrl;
+        localStorage.setItem('user', JSON.stringify(this.user));
+      }
+    },
+
+    // ✅ Dark Mode Methods
+    toggleDarkMode() {
+      this.darkMode = !this.darkMode;
+    },
+    updateDarkMode() {
+      if (this.darkMode) {
+        document.body.classList.add('dark');
+      } else {
+        document.body.classList.remove('dark');
+      }
+    }
   }
 };
 </script>
+
 
 
 
@@ -162,20 +291,6 @@ export default {
 
 
 /* Animation for Sidebar */
-.sidebar-drag-handle {
-  position: absolute;
-  top: 50%;
-  right: 4px;
-  transform: translateY(-50%);
-  width: 8px;
-  height: 80px;
-  background-color: #000000;
-  border-radius: 4px;
-  opacity: 2;
-  cursor: pointer;
-  filter: drop-shadow(1px 1px 4px rgb(0, 0, 0));
-
-}
 
 .slide-fade-enter-active {
   transition: all 0.4s ease;
@@ -215,11 +330,15 @@ export default {
   display: flex;
   align-items: center;
   gap: 10px;
+  
 }
 
 .sidebar-logo-img {
   width: 45px;
   height: 45px;
+  position: absolute;
+  margin-bottom: 4rem;
+  margin-left: 3rem;
 }
 
 .sidebar-logo-title {
@@ -227,6 +346,9 @@ export default {
   color: black;
   font-family: 'Bebas Neue', sans-serif;
   margin-top: 6px;
+  position: absolute;
+  margin-bottom: 4rem;
+  margin-left: 6.5rem;
 }
 
 .sidebar-nav {
@@ -250,6 +372,15 @@ export default {
   font-family: 'Bebas Neue', sans-serif;
 }
 
+.sidebar-hamburger {
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+  margin-right: 8px;
+  position: absolute;
+  margin-bottom: 4rem;
+  margin-left: 0.5rem;
+}
 .sidebar-link:hover {
   background-color: #f13131;
 }
@@ -302,6 +433,81 @@ export default {
   background-color: #d92a2a;
 }
 
+/* dropdown Styles */
+
+/* Make sure the parent has relative positioning */
+.settings-dropdown {
+  position: relative;
+}
+
+/* Show dropdown on hover */
+.settings-dropdown:hover .dropdown-content {
+  display: flex;
+}
+
+/* Dropdown positioned BELOW the "Settings" */
+.dropdown-content {
+  display: none;
+  position: absolute;
+  top: 100%; /* 👈 Pushes it below */
+  left: 0;
+  background-color: white;
+  border: 1px solid #ccc;
+  padding: 10px;
+  z-index: 999;
+  width: 227px;
+  justify-content: space-between;
+  align-items: center;
+  border-radius: 6px;
+  font-family: 'Bebas Neue', sans-serif;
+}
+
+
+/* Switch Styles */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 42px;
+  height: 22px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  transition: 0.4s;
+  border-radius: 22px;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 16px;
+  width: 16px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: 0.4s;
+  border-radius: 50%;
+}
+
+input:checked + .slider {
+  background-color: #f13131;
+}
+
+input:checked + .slider:before {
+  transform: translateX(20px);
+}
 
 /* Main shi */
 
@@ -434,7 +640,7 @@ export default {
   grid-template-rows: repeat(6, 11fr);
   pointer-events: none;
   z-index: 0;
-  opacity: 0.7;
+  opacity: 0.5;
 }
 
 .grid-item {
@@ -464,6 +670,84 @@ export default {
 
 .zoom-in {
   animation: zoomIn 0.5s ease forwards;
+}
+
+
+/* NOTIF WRAPPER */
+
+.notif-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+/* NOTIF ICON */
+.notif-icon {
+  cursor: pointer;
+  font-size: 24px;
+  position: relative;
+}
+
+/* DROPDOWN */
+.notif-dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  width: 300px;
+  background: white;
+  border: 1px solid #ccc;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-10px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  z-index: 1000;
+  padding: 10px;
+  border-radius: 8px;
+}
+
+.notif-wrapper:hover .notif-dropdown {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+
+.notif-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 24px;
+  margin-bottom: 10px;
+  color: #000;
+}
+
+.notif-item {
+  padding: 10px;
+  font-size: 15px;
+  border-bottom: 1px solid #f0f0f0;
+  cursor: pointer;
+  color: #000;
+  font-family: Arial, Helvetica;
+}
+
+.notif-item strong {
+  font-weight: bold !important;
+}
+
+.notif-item:hover {
+  background-color: #eb3d3d;;
+  border-radius: 10px;
+}
+
+.no-notif {
+  text-align: center;
+  padding: 20px;
+  font-size: 16px;
+  color: #999;
+}
+
+.notif-wrapper {
+  position: absolute;
+  top: 13px;
+  right: 10px;
+  z-index: 1000;
 }
 
 

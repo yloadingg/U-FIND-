@@ -1,20 +1,18 @@
 <template>
   <div class="report-lost-container">
-    <!-- Logo -->
-    <img src="@/assets/images/DEC.png" alt="Logo" class="logo" />
+    <div class="header-section">
+      <img src="@/assets/images/DEC.png" alt="Logo" class="logo" />
 
-    <!-- Back Button -->
-    <img
-      src="@/assets/images/return.png"
-      alt="Back"
-      class="back-button"
-      @click="goBack"
-    />
+      <img
+        src="@/assets/images/return.png"
+        alt="Back"
+        class="back-button"
+        @click="goBack"
+      />
 
-    <!-- Title -->
-    <h1 class="report-title">REPORT LOST ITEM</h1>
+      <h1 class="report-title">REPORT LOST ITEM</h1>
+    </div>
 
-    <!-- Upload Box -->
     <div
       class="upload-box"
       :class="{ 'with-image': previewImage }"
@@ -32,7 +30,6 @@
       </button>
     </div>
 
-    <!-- Hidden File Input -->
     <input
       type="file"
       ref="fileInput"
@@ -41,7 +38,6 @@
       style="display: none;"
     />
 
-    <!-- ✅ Full Form With Buttons Inside -->
     <form class="lost-form" @submit.prevent="submitForm">
       <input
         type="text"
@@ -61,7 +57,6 @@
         class="input-field"
       />
 
-      <!-- ✅ Buttons Now Inside Form -->
       <div class="button-group">
         <button class="submit-button" type="submit">SUBMIT</button>
         <button class="clear-button" type="button" @click="clearForm">CLEAR</button>
@@ -157,14 +152,12 @@ export default {
 };
 </script>
 
-
-  
   <style scoped>
   .report-lost-container {
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 2rem;
+    padding: 0.5 rem;
     position: relative;
     background: white;
     min-height: 100vh;
@@ -172,15 +165,15 @@ export default {
   
   .logo {
     position: absolute;
-    top: 1rem;
-    left: 1rem;
-    width: 50px;
-    height: 50px;
+    top: 0.5rem;
+    left: 0.5rem;
+    width: 48px;
+    height: 48px;
   }
   
   .back-button {
     position: absolute;
-    top: 1rem;
+    top: 0.5rem;
     right: 1rem;
     width: 40px;
     height: 40px;
@@ -188,17 +181,17 @@ export default {
   }
   
   .report-title {
-    font-size: 46px;
+    font-size: 36px;
     font-weight: bold;
-    margin-bottom: 1.5rem;
+    margin-bottom: 40px;
     color: black;
     font-family: 'Bebas Neue', sans-serif;
 
   }
   
   .upload-box {
-  width: 350px;
-  height: 200px;
+  width: 380px;
+  height: 220px;
   border-radius: 30px;
   background-color: #f0f0f0; /* Fallback color */
   filter: drop-shadow(1px 1px 5px rgb(0, 0, 0));
@@ -217,12 +210,20 @@ export default {
   top: 0;
   left: 0;
   width: 100%;
-  height: 90%;
-  background-image: url('@/assets/images/DEC.png'); /* Vue's way to handle assets */
+  height: 100%;
+  background-image: url('@/assets/images/photo.png'); /* Vue's way to handle assets */
   background-size: cover;
-  filter: blur(10px);
+  filter: blur(5px);
   z-index: -1;
 }
+
+.upload-box:hover {
+    transform: scale(1.02);
+    filter: drop-shadow(1px 1px 7px rgb(0, 0, 0));
+    transition: all .4s;
+  }
+
+
   .plus-icon {
     width: 60px;
     height: 60px;
@@ -272,32 +273,32 @@ export default {
   .lost-form {
     display: flex;
     flex-direction: column;
-    width: 300px;
+    width: 400px;
     gap: 1.5rem;
   }
   
   .input-field {
     border: none;
-    border-bottom: 2px solid black;
-    font-weight: bold;
+    border-bottom: 1px solid black;
+    font-weight: bolder;
     text-align: center;
     font-size: 1rem;
     padding: 0.5rem 0;
   }
   
   .input-field::placeholder {
-    text-transform: uppercase;
+    font-family: Arial, Helvetica, sans-serif;
   }
   
   .button-group {
     display: flex;
     gap: 2rem;
-    margin-top: 2rem;
+    margin-top: 1rem;
   }
   
   .submit-button,
   .clear-button {
-    padding: 0.75rem 2rem;
+    padding: 0.75rem 1rem;
     border: none;
     border-radius: 25px;
     font-weight: bold;

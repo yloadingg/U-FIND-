@@ -4,22 +4,19 @@
   <img
     v-for="n in 60"
     :key="n"
-    src="@/assets/images/megaphone.png"
+    src="@/assets/images/magnifier.png"
     class="grid-item"
   />
 </div>
 
  <!-- Top Logo -->
-    <div class="Ulogo-container">
-      <img src="@/assets/images/web-app-manifest-192x192.png" alt="U FIND logo" class="Ulogo" />
-      <span class="brand-name">U FIND</span>
-    </div>
+ 
 
     <div class="container">
       <!-- Left: Form Section -->
       <div class="left-section">
         <div class="form-wrapper" :class="{ 'zoom-in': animate }">
-          <h1>Welcome Back!</h1>
+          <h1>Welcome!</h1>
           <form @submit.prevent="handleLogin">
             <label for="email">Email Address</label>
             <input type="email" id="email" v-model="email" required />
@@ -50,6 +47,11 @@
         />
       </div>
     </div>
+
+
+    <footer>
+  <p>Found it! &copy; 2025 U FIND.</p>
+</footer>
 
 
 </template>
@@ -136,7 +138,7 @@ export default {
 /* Layout */
 .container {
   display: flex;
-  height:80vh;
+  height:100vh;
   width: 100%;
   overflow: hidden;
   position: relative; /* 👈 Add this */
@@ -316,7 +318,7 @@ input[type="text"] {
   grid-template-rows: repeat(6, 11fr);
   pointer-events: none;
   z-index: 0;
-  opacity: 0.7;
+  opacity: 0.5;
 }
 
 .grid-item {
@@ -331,6 +333,21 @@ input[type="text"] {
   0%   { transform: translateY(0px); }
   50%  { transform: translateY(-10px); }
   100% { transform: translateY(0px); }
+}
+
+
+footer {
+    background-color: #f0f0f0; /* A light grey background */
+    color: #333;             /* Darker text color for contrast */
+    padding: 20px;           /* Space inside the footer */
+    text-align: center;      /* Center the text horizontally */
+    font-family: Arial, sans-serif; /* A common, readable font */
+    font-size: 14px;         /* Smaller font size for footer text */
+    margin-top: 40px;        /* Space above the footer to separate it from content */
+}
+
+footer p {
+    margin: 0; /* Remove default paragraph margin for cleaner spacing */
 }
 
 </style>
