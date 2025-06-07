@@ -1,10 +1,10 @@
 
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="icon" type="image/x-icon" href="/public/favicon.png">
   <title>Admin Dashboard - Active Users</title>
   <style>
     body {
@@ -130,10 +130,16 @@
       position: absolute;
       top: 5px;
       right: 10px;
-      width: 75px;
-      height: 70px;
+      width: 48px;
+      height: 48px;
     }
-  </style>
+
+    .status {
+    margin-top: 5px;
+    font-size: 12px;
+    color: #666;
+    font-weight: bold;
+  }
   </style>
 </head>
 <body>
@@ -142,7 +148,7 @@
   </header>
   <div class="header">
     <div class="hamburger" onclick="toggleSidebar()">☰</div>
-    ADMIN DASHBOARD
+    ACTIVE USER
   </div>
 
   <div class="sidebar" id="sidebar">
@@ -158,11 +164,12 @@
   <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
 
   <div class="content">
-    <div class="section-title">Active Users:</div>
+    <div class="section-title">Registered Users:</div>
     <div class="user-grid" id="user-grid">
       <!-- User cards will be injected here -->
     </div>
   </div>
+
 
   <script>
     function toggleSidebar() {
@@ -171,37 +178,53 @@
       sidebar.classList.toggle('open');
       overlay.classList.toggle('active');
     }
-
+  
     document.addEventListener('DOMContentLoaded', () => {
       const grid = document.getElementById('user-grid');
       grid.innerHTML = ''; // Clear default
-
-      // Fetch online users from backend
-      fetch('http://localhost:3000/api/online-users')
+  
+      // Fetch all users first
+      fetch('http://localhost:3000/api/users')
         .then(response => response.json())
         .then(users => {
-          if (!users.length) {
-            grid.innerHTML = '<p>No users online.</p>';
-            return;
-          }
-
-          users.forEach(user => {
-            const card = document.createElement('div');
-            card.className = 'user-card';
-            card.innerHTML = `
-              <div class="user-avatar">👤</div>
-              <div class="user-name">User ${user.user_id}</div>
-              <div class="user-handle">@user${user.user_id}@gordon.edu</div>
-              <div class="status-dot"></div>
-            `;
-            grid.appendChild(card);
-          });
+          // Fetch online users separately
+          fetch('http://localhost:3000/api/online-users')
+            .then(res => res.json())
+            .then(onlineUsers => {
+              if (!users.length) {
+                grid.innerHTML = '<p>No registered users found.</p>';
+                return;
+              }
+  
+              users.forEach(user => {
+                const isOnline = onlineUsers.includes(user.id);
+                const statusColor = isOnline ? 'limegreen' : 'gray';
+                const statusText = isOnline ? 'Active' : 'Offline';
+  
+                const card = document.createElement('div');
+                card.className = 'user-card';
+                card.innerHTML = `
+                  <div class="user-avatar">
+                    ${user.profile_url ? `<img src="${user.profile_url}" style="width:50px;height:50px;border-radius:50%">` : ''}
+                  </div>
+                  <div class="user-name">${user.username || 'Unknown'}</div>
+                  <div class="user-handle">${user.email}</div>
+                  <div class="status" style="color:${statusColor}">Status: ${statusText}</div>
+                `;
+                grid.appendChild(card);
+              });
+            })
+            .catch(err => {
+              console.error('Error fetching online users:', err);
+              grid.innerHTML = '<p style="color:red">Error fetching online status.</p>';
+            });
         })
         .catch(err => {
-          grid.innerHTML = '<p style="color:red">Error loading users.</p>';
-          console.error('Fetch error:', err);
+          console.error('Error fetching users:', err);
+          grid.innerHTML = '<p style="color:red">Error fetching users.</p>';
         });
     });
   </script>
+  
 </body>
 </html>

@@ -30,10 +30,11 @@
 
         <!-- Item Info -->
         <div class="item-info">
-          <p><strong>Description:</strong> {{ item.description }}</p>
-          <p><strong>Date & Time:</strong> {{ item.date_lost }}</p>
-          <p><strong>Room/Facility:</strong> {{ item.location }}</p>
-        </div>
+  <p><strong>Description:</strong> {{ item.description }}</p>
+  <p><strong>Category:</strong> {{ item.category }}</p> <!-- 🟢 New -->
+  <p><strong>Date & Time:</strong> {{ item.date_lost }}</p>
+  <p><strong>Room/Facility:</strong> {{ item.location }}</p>
+</div>
 
         <!-- Comments -->
         <div class="comments-section">
@@ -174,19 +175,45 @@ export default {
       }).catch(err => console.error("Failed to send notification:", err));
     },
     submitReport() {
-      if (!this.reportReason.trim()) {
-        alert("Please enter a reason for reporting.");
-        return;
-      }
+  if (!this.reportReason.trim()) {
+    alert("Please enter a reason for reporting.");
+    return;
+  }
 
-      console.log("Reporting item:", this.item.id, "Reason:", this.reportReason);
+  const token = localStorage.getItem("token");
+  const user = JSON.parse(localStorage.getItem("user"));
 
-      // You can replace this with your backend call.
-      this.reportReason = '';
-      this.showReportModal = false;
-
-      alert("Report submitted. Thank you.");
-    }
+  fetch("http://localhost:3000/api/reports", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${token}`
+  },
+  body: JSON.stringify({
+    item_id: this.item.id,
+    report_reason: this.reportReason,
+    reported_by: user.id
+  })
+})
+.then(res => {
+  if (!res.ok) {
+    // if response status not OK, throw error to catch block
+    return res.json().then(errData => {
+      throw new Error(errData.message || "Failed to submit report");
+    });
+  }
+  return res.json();
+})
+.then(data => {
+  alert(`✅ ${data.message}`);
+  this.reportReason = '';
+  this.showReportModal = false;
+})
+.catch(err => {
+  console.error("Failed to submit report:", err);
+  alert(`❌ ${err.message}`);
+});
+   }
   }
 };
 </script>

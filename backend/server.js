@@ -9,9 +9,13 @@ const jwt = require('jsonwebtoken');
 const authRoutes = require('./routes/auth');
 
 const app = express();
+const http = require('http').createServer(app); // Use HTTP server
+const io = require('socket.io')(http, {
+  cors: { origin: '*', methods: ['GET', 'POST'] }
+});
 const PORT = 3000;
 
-let db; // will hold our async connection
+let onlineUsers = []; // 🟢 Track online users (user IDs)
 
 // JWT middleware
 function authenticateToken(req, res, next) {
@@ -51,6 +55,28 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 // Mount auth routes
 app.use('/api/auth', authRoutes);
 
+// 🟢 Socket.IO handling
+io.on('connection', (socket) => {
+  console.log('A user connected:', socket.id);
+
+  socket.on('userOnline', (userId) => {
+    if (!onlineUsers.includes(userId)) {
+      onlineUsers.push(userId);
+      console.log('User online:', userId);
+    }
+  });
+
+  socket.on('disconnect', () => {
+    console.log('A user disconnected:', socket.id);
+    // No cleanup needed for now
+  });
+});
+
+// GET online users
+app.get('/api/online-users', (req, res) => {
+  res.json(onlineUsers);
+});
+
 async function initDB() {
   try {
     db = await mysql.createConnection({
@@ -63,34 +89,37 @@ async function initDB() {
 
     // Routes that use async/await and the db connection
 
-    // POST route to upload lost item (with MySQL insert)
-    app.post('/api/lost-items', authenticateToken, upload.single('image'), async (req, res) => {
-      try {
-        const { description, dateLost, location } = req.body;
-        const userId = req.user.id;
+// 🟢 Updated POST route to include category
+app.post('/api/lost-items', authenticateToken, upload.single('image'), async (req, res) => {
+  try {
+    const { description, dateLost, location, category } = req.body; // 🟩 Add category
+    const userId = req.user.id;
 
-        if (!req.file) {
-          return res.status(400).json({ error: 'Image is required.' });
-        }
+    if (!req.file) {
+      return res.status(400).json({ error: 'Image is required.' });
+    }
 
-        const imageUrl = `http://localhost:${PORT}/uploads/${req.file.filename}`;
+    const imageUrl = `http://localhost:${PORT}/uploads/${req.file.filename}`;
 
-        const sql = 'INSERT INTO lost_items (description, date_lost, location, user_id, image_url) VALUES (?, ?, ?, ?, ?)';
-        const [result] = await db.execute(sql, [description, dateLost, location, userId, imageUrl]);
+    // 🟢 Updated INSERT to include category
+    const sql = 'INSERT INTO lost_items (description, date_lost, location, category, user_id, image_url) VALUES (?, ?, ?, ?, ?, ?)';
+    const [result] = await db.execute(sql, [description, dateLost, location, category, userId, imageUrl]);
 
-        res.status(201).json({
-          id: result.insertId,
-          description,
-          date_lost: dateLost,
-          location,
-          user_id: userId,
-          image_url: imageUrl
-        });
-      } catch (err) {
-        console.error('MySQL insert error:', err);
-        res.status(500).json({ error: 'Database error' });
-      }
+    res.status(201).json({
+      id: result.insertId,
+      description,
+      date_lost: dateLost,
+      location,
+      category, // 🟩 Include in response
+      user_id: userId,
+      image_url: imageUrl
     });
+  } catch (err) {
+    console.error('MySQL insert error:', err);
+    res.status(500).json({ error: 'Database error' });
+  }
+});
+
 
 
     const jwt = require('jsonwebtoken');
@@ -181,14 +210,22 @@ app.put('/api/profile/picture', authenticateToken, upload.single('profile'), asy
     // GET all lost items
     app.get('/api/lost-items', async (req, res) => {
       try {
-        const [results] = await db.execute('SELECT * FROM lost_items ORDER BY date_lost DESC');
+        const [results] = await db.execute(`
+          SELECT 
+            lost_items.*, 
+            users.username AS poster_name,
+            users.email AS poster_email
+          FROM lost_items
+          JOIN users ON lost_items.user_id = users.id
+          ORDER BY lost_items.date_lost DESC
+        `);
         res.json(results);
       } catch (err) {
         console.error('Fetch error:', err);
         res.status(500).json({ error: 'Database error' });
       }
     });
-
+    
 // Delete lost item
 app.delete('/api/lost-items/:id', authenticateToken, async (req, res) => {
   const itemId = req.params.id;
@@ -238,16 +275,24 @@ app.delete('/api/lost-items/:id', authenticateToken, async (req, res) => {
     });
     
 
-    // GET claimed items
-    app.get('/api/claimed-items', async (req, res) => {
-      try {
-        const [results] = await db.execute('SELECT * FROM lost_items WHERE is_claimed = 1 ORDER BY date_lost DESC');
-        res.json(results);
-      } catch (err) {
-        console.error('Fetch claimed items error:', err);
-        res.status(500).json({ error: 'Database error' });
-      }
-    });
+    // GET claimed items with poster's username
+app.get('/api/claimed-items', async (req, res) => {
+  try {
+    const [results] = await db.execute(`
+      SELECT
+        lost_items.*,
+        users.username AS poster_name  -- Alias the username from the users table as poster_name
+      FROM lost_items
+      JOIN users ON lost_items.user_id = users.id
+      WHERE lost_items.is_claimed = 1
+      ORDER BY lost_items.date_lost DESC
+    `);
+    res.json(results);
+  } catch (err) {
+    console.error('Fetch claimed items error:', err);
+    res.status(500).json({ error: 'Database error' });
+  }
+});
 
     // GET lost items by user
     app.get('/api/lost-items/user/:userId', authenticateToken, async (req, res) => {
@@ -409,10 +454,9 @@ app.use('/admin', express.static(path.join(__dirname, 'admin-panel')));
     });
 
     // Start the server after DB is connected and routes are defined
-    app.listen(PORT, () => {
+    http.listen(PORT, () => {
       console.log(`🚀 Server running on http://localhost:${PORT}`);
     });
-
   } catch (error) {
     console.error('Failed to connect to MySQL:', error);
   }
@@ -465,3 +509,133 @@ app.get('/api/claimed-items/count', async (req, res) => {
 });
 
 
+//reported posts
+app.post('/api/reports', authenticateToken, async (req, res) => {
+  try {
+    const { item_id, report_reason, reported_by } = req.body;
+
+    const sql = 'INSERT INTO reported_posts (item_id, report_reason, reported_by) VALUES (?, ?, ?)';
+    await db.execute(sql, [item_id, report_reason, reported_by]);
+
+    res.status(200).json({ message: 'Report submitted successfully' });
+  } catch (err) {
+    console.error("Error inserting report:", err);
+    res.status(500).json({ message: 'Failed to submit report' });
+  }
+});
+
+app.get('/api/reported-posts/count', async (req, res) => {
+  try {
+    const [rows] = await db.query('SELECT COUNT(*) AS count FROM reported_posts');
+    res.json({ count: rows[0].count });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.get('/api/reported-posts/list', async (req, res) => {
+  try {
+    const [rows] = await db.query(`
+      SELECT 
+        rp.id,
+        rp.item_id,
+        rp.report_reason,
+        u.username AS reported_by_name,
+        rp.created_at AS report_created_at,
+        li.image_url,
+        li.description AS item_description,     -- 🟢 Add item description
+        owner.username AS posted_by_name        -- 🟢 Add posted by name
+      FROM reported_posts rp
+      JOIN lost_items li ON rp.item_id = li.id
+      LEFT JOIN users u ON rp.reported_by = u.id
+      LEFT JOIN users owner ON li.user_id = owner.id  -- 🟢 Get the post owner’s username
+      ORDER BY rp.created_at DESC
+    `);
+    res.json(rows);
+  } catch (err) {
+    console.error("Error fetching reported posts:", err);
+    res.status(500).json({ message: 'Failed to fetch reported posts' });
+  }
+});
+
+// DELETE lost item by admin (bypass user ownership check)
+app.delete('/api/admin/lost-items/:id', async (req, res) => {
+  const itemId = req.params.id;
+
+  try {
+    // Delete related comments first
+    await db.execute('DELETE FROM comments WHERE item_id = ?', [itemId]);
+
+    // Delete the lost item
+    const [result] = await db.execute('DELETE FROM lost_items WHERE id = ?', [itemId]);
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: 'Item not found' });
+    }
+
+    res.json({ message: 'Lost item deleted successfully.' });
+  } catch (err) {
+    console.error('Admin delete error:', err);
+    res.status(500).json({ error: 'Failed to delete lost item.' });
+  }
+});
+
+
+// GET all users (for admin dashboard)
+app.get('/api/users', async (req, res) => {
+  try {
+    const [rows] = await db.execute('SELECT id, username, email, profile_url FROM users ORDER BY created_at DESC');
+    res.json(rows);
+  } catch (err) {
+    console.error('Error fetching users:', err);
+    res.status(500).json({ error: 'Database error' });
+  }
+});
+
+
+// GET count of registered users
+app.get('/api/users/count', async (req, res) => {
+  try {
+    const [rows] = await db.execute('SELECT COUNT(*) AS count FROM users');
+    res.json({ count: rows[0].count });
+  } catch (err) {
+    console.error('Error counting users:', err);
+    res.status(500).json({ error: 'Database error' });
+  }
+});
+
+app.get('/api/reports/monthly', async (req, res) => {
+  try {
+    const [users] = await db.execute(`
+      SELECT COUNT(*) AS count FROM users
+      WHERE MONTH(created_at) = MONTH(CURRENT_DATE()) AND YEAR(created_at) = YEAR(CURRENT_DATE())
+    `);
+
+    const [uploadedItems] = await db.execute(`
+      SELECT COUNT(*) AS count FROM lost_items
+      WHERE MONTH(created_at) = MONTH(CURRENT_DATE()) AND YEAR(created_at) = YEAR(CURRENT_DATE())
+    `);
+
+    const [claimedItems] = await db.execute(`
+      SELECT COUNT(*) AS count FROM lost_items
+      WHERE is_claimed = 1 AND MONTH(date_claimed) = MONTH(CURRENT_DATE()) AND YEAR(date_claimed) = YEAR(CURRENT_DATE())
+    `);
+
+    const [reportedPosts] = await db.execute(`
+      SELECT COUNT(*) AS count FROM reported_posts
+      WHERE MONTH(created_at) = MONTH(CURRENT_DATE()) AND YEAR(created_at) = YEAR(CURRENT_DATE())
+    `);
+
+    res.json({
+      month: new Date().toLocaleString('default', { month: 'long' }),
+      new_users: users[0].count,
+      uploaded_items: uploadedItems[0].count,
+      claimed_items: claimedItems[0].count,
+      reported_posts: reportedPosts[0].count
+    });
+  } catch (err) {
+    console.error('Error fetching monthly report:', err);
+    res.status(500).json({ error: 'Database error' });
+  }
+});
+  

@@ -257,7 +257,7 @@ export default {
         });
       } catch (err) {
         console.error('Failed to clear notifications:', err);
-      }
+      }                                                                               
     },
     goToPost(postId) {
       this.$router.push(`/lost-item/${postId}`);
@@ -751,5 +751,186 @@ input:checked + .slider:before {
 }
 
 
+/* Small devices (phones, 600px and below) */
+@media (max-width: 600px) {
+  .dashboard-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .header-left {
+    flex-direction: column;
+    align-items: flex-start;
+    margin-left: 10px;
+  }
+
+  .header-title {
+    font-size: 28px;
+    margin-left: 0;
+    margin-top: 10px;
+  }
+
+  .u-icon {
+    width: 40px;
+    height: 40px;
+    margin-left: 0;
+  }
+
+  .more-icon {
+    width: 25px;
+    height: 25px;
+    margin-left: 0;
+  }
+
+  .dashboard-cards {
+    flex-direction: column;
+    align-items: center;
+    padding-top: 20px;
+    margin-top: 40px;
+    gap: 20px;
+  }
+
+  .dashboard-card {
+    width: 90%;
+    height: 200px;
+    font-size: 18px;
+  }
+
+  .sidebar {
+    width: 220px;
+    padding: 0.5rem;
+  }
+
+  .sidebar-logo-img {
+    width: 35px;
+    height: 35px;
+    margin-left: 2rem;
+  }
+
+  .sidebar-logo-title {
+    font-size: 24px;
+    margin-left: 5.5rem;
+  }
+
+  .sidebar-link {
+    font-size: 1.2rem;
+    gap: 10px;
+  }
+
+  .notif-wrapper {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+  }
+
+  .header-icon {
+    width: 25px;
+    height: 25px;
+  }
+}
+
+/* Medium devices (tablets, 768px and below) */
+@media (max-width: 768px) {
+  .dashboard-cards {
+    gap: 30px;
+    margin-top: 60px;
+  }
+
+  .dashboard-card {
+    width: 250px;
+    height: 210px;
+    font-size: 18px;
+  }
+
+  .header-title {
+    font-size: 32px;
+  }
+
+  .sidebar {
+    width: 240px;
+  }
+
+  .sidebar-link {
+    font-size: 1.3rem;
+  }
+
+  .sidebar-logo-title {
+    font-size: 26px;
+  }
+}
+
+/* Large devices (up to small desktops, 1024px) */
+@media (max-width: 1024px) {
+  .dashboard-card {
+    width: 280px;
+    height: 220px;
+  }
+
+  .dashboard-cards {
+    gap: 35px;
+  }
+
+  .header-title {
+    font-size: 36px;
+  }
+}
+/* === Responsive Header and Logo === */
+
+@media (max-width: 768px) {
+  .dashboard-header {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 10px;
+  }
+
+  .header-left {
+    flex-direction: row;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-top: 0;
+    gap: 10px;
+  }
+
+  .more-icon {
+    width: 24px;
+    height: 24px;
+    margin-left: 0;
+    margin-bottom: 0;
+  }
+
+  .u-icon {
+    width: 40px;
+    height: 40px;
+    margin-left: 0;
+    margin-bottom: 0;
+  }
+
+  .header-title {
+    font-size: 28px;
+    margin-left: 5px;
+    margin-top: 5px;
+  }
+
+  .header-right {
+    margin-right: 0;
+    margin-top: 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .header-title {
+    font-size: 24px;
+  }
+
+  .u-icon {
+    width: 35px;
+    height: 35px;
+  }
+
+  .more-icon {
+    width: 22px;
+    height: 22px;
+  }
+}
 
 </style>

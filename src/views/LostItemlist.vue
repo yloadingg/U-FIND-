@@ -11,7 +11,7 @@
         <input
           v-model="searchQuery"
           type="text"
-          placeholder="Search by Room/Facility"
+          placeholder="Search by Category/Rooms"
           class="search-input"
         />
         <img :src="searchIcon" alt="Search" class="search-icon" />
@@ -42,19 +42,21 @@
       <div
         class="item-grid"
       >
-        <div
-          v-for="item in filteredItems"
-          :key="item.id"
-          class="item-box"
-          @click="$router.push(`/lost-item/${item.id}`)"
-        >
-          <img :src="item.image_url" class="item-image" />
-          <div class="item-details">
-            <p><strong>Description:</strong> {{ item.description }}</p>
-            <p><strong>Date Lost:</strong> {{ formatDate(item.date_lost) }}</p>
-            <p><strong>Room/Facility:</strong> {{ item.location }}</p>
-          </div>
-        </div>
+      <div
+  v-for="item in filteredItems"
+  :key="item.id"
+  class="item-box"
+  @click="$router.push(`/lost-item/${item.id}`)"
+>
+  <img :src="item.image_url" class="item-image" />
+  <div class="item-details">
+    <p><strong>Description:</strong> {{ item.description }}</p>
+    <p><strong>Category:</strong> {{ item.category }}</p> <!-- 🟢 Add category here -->
+    <p><strong>Date Lost:</strong> {{ formatDate(item.date_lost) }}</p>
+    <p><strong>Room/Facility:</strong> {{ item.location }}</p>
+  </div>
+</div>
+
       </div>
     </div>
   </div>
@@ -88,8 +90,9 @@ export default {
       if (!this.searchQuery) return this.lostItems;
       const query = this.searchQuery.toLowerCase();
       return this.lostItems.filter(item =>
-        item.location.toLowerCase().includes(query)
-      );
+  item.location.toLowerCase().includes(query) ||
+  (item.category && item.category.toLowerCase().includes(query)) // 🟩 add category search
+);
     }
   },
   methods: {
@@ -243,4 +246,106 @@ export default {
 .search-input{
   font-weight: bold;
 }
+
+/* === Responsive Header === */
+@media (max-width: 1024px) {
+  .feed-title {
+    font-size: 28px;
+    padding-left: 8rem;
+  }
+  .search-container {
+    width: 180px;
+    right: 2rem;
+  }
+  .logo {
+    width: 40px;
+    height: 40px;
+    top: 0.5rem;
+    left: 0.5rem;
+  }
+  .back-button {
+    width: 36px;
+    height: 36px;
+    top: 0.5rem;
+    right: 1rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .header {
+    justify-content: center;
+    position: relative;
+    padding-bottom: 10px;
+  }
+
+  .logo {
+    position: static;
+    width: 36px;
+    height: 36px;
+    margin-right: 10px;
+  }
+
+  .feed-title {
+    font-size: 24px;
+    padding-left: 0;
+    flex: none;
+  }
+
+  .search-container {
+    position: static;
+    width: 140px;
+    margin-left: 10px;
+    right: auto;
+  }
+
+  .back-button {
+    position: absolute;
+    top: 0.5rem;
+    right: 1rem;
+    width: 32px;
+    height: 32px;
+  }
+}
+
+@media (max-width: 480px) {
+  .header {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 6px;
+  }
+
+  .logo {
+    width: 30px;
+    height: 30px;
+    margin: 0;
+  }
+
+  .feed-title {
+    font-size: 20px;
+    padding-left: 0;
+    text-align: center;
+    width: 100%;
+    order: 2;
+  }
+
+  .search-container {
+    width: 100%;
+    max-width: 200px;
+    margin: 0 auto;
+    order: 3;
+  }
+
+  .search-input {
+    font-size: 13px;
+  }
+
+  .back-button {
+    width: 28px;
+    height: 28px;
+    top: 0.5rem;
+    right: 0.5rem;
+    order: 1;
+  }
+}
+
 </style>

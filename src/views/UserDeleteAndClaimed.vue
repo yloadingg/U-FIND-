@@ -26,6 +26,12 @@
           <span class="label">Description:</span>
           <span>{{ item.description }}</span>
         </div>
+
+        <div class="info-line">
+          <span class="label">Category:</span>
+          <span>{{ item.category }}</span>
+        </div>
+      
         <div class="info-line">
           <span class="label">Date Lost:</span>
           <span>{{ formatDate(item.date_lost) }}</span>

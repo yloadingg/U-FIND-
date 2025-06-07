@@ -1,228 +1,288 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <link rel="icon" type="image/x-icon" href="/public/favicon.png">
-  <title>Admin Dashboard</title>
-  <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-    }
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <link rel="icon" type="image/x-icon" href="/public/favicon.png">
+    <title>Admin Dashboard</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0; /* Light background for the page */
+        }
 
-    .header {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 20px;
-      font-size: 28px;
-      font-weight: bold;
-      position: relative;
-    }
+        .header {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            font-size: 28px;
+            font-weight: bold;
+            position: relative;
+            font-family: 'Bebas Neue', sans-serif;
 
-    .hamburger {
-      position: absolute;
-      left: 20px;
-      font-size: 28px;
-      cursor: pointer;
-    }
+        }
 
-    .sidebar {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 250px;
-      height: 100%;
-      background: white;
-      padding: 20px;
-      box-shadow: 2px 0 10px rgba(0, 0, 0, 0.3);
-      transform: translateX(-100%);
-      transition: transform 0.3s ease;
-      z-index: 1001;
-    }
+        .hamburger {
+            position: absolute;
+            left: 20px;
+            font-size: 28px;
+            cursor: pointer;
+            z-index: 1002;
+            color: #333; /* Dark gray for good contrast on white header */
+            user-select: none; /* Inherited from Claimed Items CSS */
+        }
 
-    .sidebar.open {
-      transform: translateX(0);
-    }
+        .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 250px;
+    height: 100%;
+    background: white !important; /* <--- ADDED !important HERE */
+    padding: 20px;
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.15); /* This was the desired shadow */
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+    z-index: 1001;
+}
 
-    .sidebar a {
-      display: block;
-      margin: 30px 0;
-      text-decoration: none;
-      color: black;
-      font-weight: bold;
-      font-size: 20px;
-    }
+        .sidebar.open {
+            transform: translateX(0);
+        }
 
-    .overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba(0, 0, 0, 0.5);
-      display: none;
-      z-index: 1000;
-    }
+        .sidebar a {
+            display: block;
+            margin: 30px 0;
+            text-decoration: none;
+            color: black;
+            font-weight: bold;
+            font-size: 20px;
+            user-select: none; /* Inherited from Claimed Items CSS */
+        }
 
-    .overlay.active {
-      display: block;
-    }
+        .sidebar a.close-btn {
+            font-size: 28px;
+            margin: 0 0 40px 0;
+            text-align: right; /* Inherited from Claimed Items CSS */
+            cursor: pointer;
+            color: #333; /* Ensure close button is visible */
+        }
 
-    .dashboard {
-      display: flex;
-      justify-content: center;
-      gap: 20px;
-      padding: 40px;
-      flex-wrap: wrap;
-    }
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            z-index: 1000;
+        }
 
-    .card {
-      padding: 20px;
-      width: 200px;
-      color: white;
-      border-radius: 5px;
-      font-size: 18px;
-      font-weight: bold;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      text-align: center;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
+        .overlay.active {
+            display: block;
+        }
 
-    .green { background-color: seagreen; }
-    .blue { background-color: #004aad; }
-    .red { background-color: #db2c2c; }
-    .orange { background-color: orange; }
+        /* Todays Data Heading */
+        .todays-data-heading {
+            font-family: 'Arial Black', sans-serif;
+            font-size: 2em;
+            color: #000000;
+            margin-left: 40px;
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
 
-    .card-icon {
-      font-size: 24px;
-      margin-bottom: 10px;
-    }
+        /* Container for all dashboard cards */
+        .dashboard-cards-container {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            padding: 0 40px 40px 40px;
+            flex-wrap: wrap;
+        }
 
-    .card-number {
-      font-size: 32px;
-      font-weight: bold;
-    }
+        /* Base Card Styles */
+        .card {
+            width: 250px;
+            height: 200px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            border-radius: 5px;
+            font-family: 'Bebas Neue', sans-serif;
+            text-align: center;
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            box-sizing: border-box;
+        }
 
-    .header-image {
-      position: absolute;
-      top: 10px;
-      right: 16px;
-      width: 75px;
-      height: 70px;
-    }
+        /* Specific card background colors (matched from image) */
+        .red-card {
+            background-color: #2E7D32; /* Online Users - Green */
+        }
 
-    .logo{
-      width: 48px;
-      height: 48px ;
-    }
-  </style>
+        .blue-card {
+            background-color: #1976D2; /* Uploaded Missing Items - Blue */
+        }
+
+        .dark-green-card {
+            background-color: red; /* Claimed Missing Items - Red */
+        }
+
+        .orange-card {
+            background-color: #FB8C00; /* Reported Posts - Orange */
+        }
+
+        /* Icon container styles */
+        .card-icon {
+            width: 80px;
+            height: 80px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        /* Image within the icon container */
+        .card-icon-img {
+            max-width: 100%;
+            max-height: 100%;
+            height: auto;
+            display: block;
+            filter: brightness(0) invert(1); /* Turns black icons white for visibility on colored backgrounds */
+        }
+
+        /* Card title (e.g., "Online Users") */
+        .card-title {
+            font-size: 1em;
+            font-weight: normal;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+        }
+
+        /* Card number (e.g., "100") */
+        .card-number {
+            font-size: 3em;
+            font-weight: bold;
+        }
+
+        /* Header Image (DEC.png) */
+        .header-image {
+            position: absolute;
+            top: 10px;
+            right: 16px;
+            width: 48px;
+            height: 48px;
+        }
+    </style>
 </head>
 <body>
 
 <header class="mb-8 relative">
-  <img src="https://raw.githubusercontent.com/yloadingg/U-FIND-/refs/heads/main/src/assets/images/DEC.png" alt="Dashboard Image" class="header-image" />
+    <img src="/public/DEC.png" alt="Dashboard Image" class="header-image" />
 </header>
 
 <div class="header">
-  <div class="hamburger" onclick="toggleSidebar()">☰</div>
-  ADMIN DASHBOARD
+    <div class="hamburger" onclick="toggleSidebar()">☰</div>
+    ADMIN DASHBOARD
 </div>
 
 <div class="sidebar" id="sidebar">
-  <a href="#" onclick="toggleSidebar()">✕</a>
-  <a href="index.html">Home</a>
-  <a href="active-users.html">Active Users</a>
-  <a href="uploaded-missing-items.html">Uploaded Missing Items</a>
-  <a href="claimed-missing-items.html">Claimed Items List</a>
-  <a href="reported-posts.html">Reported Posts</a>
-  <a href="generate-report.html">Monthly Reports</a>
+    <a class="close-btn" href="javascript:void(0)" onclick="toggleSidebar()"></a>
+    <a href="index.html">Home</a>
+    <a href="active-users.html">Active Users</a>
+    <a href="uploaded-missing-items.html">Uploaded Missing Items</a>
+    <a href="claimed-missing-items.html">Claimed Items List</a>
+    <a href="reported-posts.html">Reported Posts</a>
+    <a href="generate-report.html">Monthly Reports</a>
 </div>
 
 <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
 
-<div class="dashboard">
-  <div class="card green">
-    <div class="card-icon">💡</div>
-    Online Users
-    <div class="card-number" id="on">1</div>
-  </div>
+<h2 class="todays-data-heading">Today's Data:</h2>
 
-  <div class="card blue">
-    <div class="card-icon">💬</div>
-    Uploaded Missing Items
-    <div class="card-number" id="uploadedItems">0</div>
-  </div>
+<div class="dashboard-cards-container">
+    <div class="card red-card">
+        <div class="card-icon">
+            <img src="/icons/users.png" alt="Online Users Icon" class="card-icon-img">
+        </div>
+        <div class="card-title">USERS</div>
+        <div class="card-number" id="onlineUsers"></div>
+    </div>
 
-  <div class="card red">
-    <div class="card-icon">✅</div>
-    Claimed Missing Items
-    <div class="card-number" id="claimedItems">0</div>
-  </div>
+    <div class="card blue-card">
+        <div class="card-icon">
+            <img src="/icons/chat.png" alt="Uploaded Items Icon" class="card-icon-img">
+        </div>
+        <div class="card-title">Uploaded Missing Items</div>
+        <div class="card-number" id="uploadedItems"></div>
+    </div>
 
-  <div class="card orange">
-    <div class="card-icon">📢</div>
-    Reported Posts
-    <div class="card-number" id="reportedPosts">0</div>
-  </div>
+    <div class="card dark-green-card">
+        <div class="card-icon">
+            <img src="/icons/check.png" alt="Claimed Items Icon" class="card-icon-img">
+        </div>
+        <div class="card-title">Claimed Missing
+            Items</div>
+        <div class="card-number" id="claimedItems"></div>
+    </div>
+
+    <div class="card orange-card">
+        <div class="card-icon">
+            <img src="/icons/reported.png" alt="Reported Posts Icon" class="card-icon-img">
+        </div>
+        <div class="card-title">Reported Posts</div>
+        <div class="card-number" id="reportedPosts"></div>
+    </div>
 </div>
 
 <script>
-  function toggleSidebar() {
-    const sidebar = document.getElementById('sidebar');
-    const overlay = document.getElementById('overlay');
-    sidebar.classList.toggle('open');
-    overlay.classList.toggle('active');
-  }
+    function toggleSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('overlay');
+        sidebar.classList.toggle('open');
+        overlay.classList.toggle('active');
+    }
 
-  document.addEventListener('DOMContentLoaded', function () {
-    // Online users
-    fetch('http://localhost:3000/api/online-users/count')
-      .then(response => response.json())
-      .then(data => {
-        document.getElementById('onlineUsers').textContent = data.count;
-      })
-      .catch(err => console.error('Error fetching online users:', err));
+    document.addEventListener('DOMContentLoaded', function () {
+        // Online users (Registered users count)
+        fetch('http://localhost:3000/api/users/count')
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('onlineUsers').textContent = data.count; // Show total registered users
+            })
+            .catch(err => console.error('Error fetching registered users:', err));
 
-// Uploaded missing items
-fetch('http://localhost:3000/api/lost-items/count')
-  .then(response => response.json())
-  .then(data => {
-    document.getElementById('uploadedItems').textContent = data.count;
-  })
-  .catch(err => console.error('Error fetching uploaded items:', err));
+        // Uploaded missing items
+        fetch('http://localhost:3000/api/lost-items/count')
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('uploadedItems').textContent = data.count;
+            })
+            .catch(err => console.error('Error fetching uploaded items:', err));
 
-// Claimed missing items
-fetch('http://localhost:3000/api/claimed-items/count') // 👈 Use different endpoint here
-  .then(response => response.json())
-  .then(data => {
-    document.getElementById('claimedItems').textContent = data.count;
-  })
-  .catch(err => console.error('Error fetching claimed items:', err));
+        // Claimed missing items
+        fetch('http://localhost:3000/api/claimed-items/count')
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('claimedItems').textContent = data.count;
+            })
+            .catch(err => console.error('Error fetching claimed items:', err));
 
-
-    // Reported posts
-    fetch('http://localhost:3000/api/reported-posts/count')
-      .then(response => response.json())
-      .then(data => {
-        document.getElementById('reportedPosts').textContent = data.count;
-      })
-      .catch(err => console.error('Error fetching reported posts:', err));
-  });
-
-  fetch('http://localhost:3000/api/online-users/count')
-  .then(response => response.json())
-  .then(data => {
-    document.getElementById('onlineUsers').textContent = data.count;
-  })
-  .catch(err => console.error('Error fetching online users:', err));
+        // Reported posts (reported items)
+        fetch('http://localhost:3000/api/reported-posts/count')
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('reportedPosts').textContent = data.count;
+            })
+            .catch(err => console.error('Error fetching reported posts:', err));
+    });
 </script>
-
 
 </body>
 </html>

@@ -150,9 +150,15 @@
 }
 
 h1 {
-  font-size: 50px;
+  font-size: 42px;
+  margin-bottom: 20px;
   font-family: 'Bebas Neue', sans-serif;
-  color: rgb(0, 0, 0);
+  border-radius: 12px;
+  padding: 1px 5px 0px;
+  background-color: rgb(255, 255, 255);
+  display: flex; 
+  width: fit-content; 
+
 }
 
 form {

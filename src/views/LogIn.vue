@@ -164,8 +164,12 @@ h1 {
   font-size: 42px;
   margin-bottom: 20px;
   font-family: 'Bebas Neue', sans-serif;
+  border-radius: 12px;
+  padding: 1px 5px 0px;
+  background-color: rgb(255, 255, 255);
+  display: flex; 
 }
-
+    
 p {
   text-align: center;
   font-weight: bold;

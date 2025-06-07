@@ -36,8 +36,9 @@
             @click="openPreview(item.image_url)"
           />
           <div class="item-info">
-            <p><strong>Description:</strong> {{ item.description }}</p>
-            <p><strong>Date Claimed:</strong> {{ formatDate(item.date_claimed) }}</p>
+             <p><strong>Description:</strong> {{ item.description }}</p>
+             <p><strong>Category:</strong> {{ item.category }}</p> <!-- 🟢 New -->
+             <p><strong>Date Claimed:</strong> {{ formatDate(item.date_claimed) }}</p>
             <p><strong>Room/Facility:</strong> {{ item.location }}</p>
           </div>
         </div>

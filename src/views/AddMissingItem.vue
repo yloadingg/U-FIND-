@@ -31,31 +31,47 @@
     </div>
 
     <input
-      type="file"
-      ref="fileInput"
-      accept="image/*"
-      @change="handleFileChange"
-      style="display: none;"
-    />
+  type="file"
+  ref="fileInput"
+  accept="image/*"
+  @change="handleFileChange"
+  style="display: none;"
+/>
 
-    <form class="lost-form" @submit.prevent="submitForm">
-      <input
-        type="text"
-        v-model="description"
-        placeholder="DESCRIPTION"
-        class="input-field"
-      />
-      <input
-        type="datetime-local"
-        v-model="dateLost"
-        class="input-field"
-      />
-      <input
-        type="text"
-        v-model="location"
-        placeholder="ROOM/FACILITY NUMBER"
-        class="input-field"
-      />
+<form class="lost-form" @submit.prevent="submitForm">
+  <input
+    type="text"
+    v-model="description"
+    placeholder="DESCRIPTION"
+    class="input-field"
+  />
+  
+  <select v-model="category" class="input-field">
+    <option value="" disabled>Select Category</option>
+    <option value="Gadgets">Gadgets</option>
+    <option value="Papers">Papers</option>
+    <option value="Personal Belongings">Personal Belongings</option>
+    <option value="Shoes">Shoes</option>
+    <option value="Clothes">Clothes</option>
+    <option value="Bags">Bags</option>
+    <option value="Keys">Keys</option>
+    <option value="Wallets">Wallets</option>
+    <option value="Others">Others</option>
+  
+  </select>
+  
+  <input
+    type="datetime-local"
+    v-model="dateLost"
+    class="input-field"
+  />
+  <input
+    type="text"
+    v-model="location"
+    placeholder="ROOM/FACILITY NUMBER"
+    class="input-field"
+  />
+
 
       <div class="button-group">
         <button class="submit-button" type="submit">SUBMIT</button>
@@ -69,14 +85,15 @@
 <script>
 export default {
   data() {
-    return {
-      previewImage: null,
-      description: '',
-      dateLost: '',
-      location: '',
-      userId: null,
-    };
-  },
+  return {
+    previewImage: null,
+    description: '',
+    category: '', // ✅ Added category
+    dateLost: '',
+    location: '',
+    userId: null,
+  };
+},
   created() {
     const userData = localStorage.getItem('user');
     if (userData) {
@@ -112,15 +129,16 @@ export default {
       this.removeImage();
     },
     submitForm() {
-      if (!this.previewImage || !this.description || !this.dateLost || !this.location) {
-        alert("Please fill out all fields and upload an image.");
-        return;
-      }
+      if (!this.previewImage || !this.description || !this.dateLost || !this.location || !this.category) {
+  alert("Please fill out all fields and upload an image.");
+  return;
+}
 
       const file = this.$refs.fileInput.files[0];
       const formData = new FormData();
       formData.append("image", file);
       formData.append("description", this.description);
+      formData.append("category", this.category);
       formData.append("dateLost", this.dateLost);
       formData.append("location", this.location);
       formData.append("userId", this.userId); // ✅ Attach userId
@@ -183,7 +201,7 @@ export default {
   .report-title {
     font-size: 36px;
     font-weight: bold;
-    margin-bottom: 40px;
+    margin-bottom: 1.3rem;
     color: black;
     font-family: 'Bebas Neue', sans-serif;
 
@@ -198,7 +216,7 @@ export default {
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 2rem;
+  margin-bottom: 1rem;
   position: relative;
   overflow: hidden;
   cursor: pointer;
@@ -293,7 +311,6 @@ export default {
   .button-group {
     display: flex;
     gap: 2rem;
-    margin-top: 1rem;
   }
   
   .submit-button,

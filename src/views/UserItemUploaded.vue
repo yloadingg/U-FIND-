@@ -31,6 +31,7 @@
           <img :src="item.image_url" alt="Uploaded Item" class="item-image" />
           <div class="item-details">
             <p><strong>Description:</strong> {{ item.description }}</p>
+            <p><strong>Category:</strong> {{(item.category) }}</p>
             <p><strong>Date Lost:</strong> {{ formatDate(item.date_lost) }}</p>
             <p><strong>Location:</strong> {{ item.location }}</p>
           </div>
@@ -39,6 +40,8 @@
     </div>
   </div>
 </template>
+
+
 
 <script>
 export default {
@@ -185,4 +188,7 @@ export default {
 .item-details p strong {
   font-weight: bold !important;
 }
+
+
+
 </style>
